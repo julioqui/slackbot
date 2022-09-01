@@ -1,19 +1,14 @@
 import slack
 from flask import Flask, request, Response
 from slackeventsapi import SlackEventAdapter
-import os
 from dotenv import load_dotenv
-from pathlib import Path
+import os
 import random
 
-# dotenv_path = Path('./.env')
-# load_dotenv(dotenv_path=dotenv_path)
+load_dotenv()
 
-# SLACK_TOKEN = os.getenv("SLACK_TOKEN")
-# SIGNING_SECRET = os.getenv("SIGNING_SECRET")
-
-SLACK_TOKEN="xoxb-4006136814037-3994581778295-FNUNmL9Y0792aOAXIFo0chOr"
-SIGNING_SECRET="c5be448a167d1ded05cafa2bfd98cb6b"
+SLACK_TOKEN = os.getenv("TOKEN")
+SIGNING_SECRET = os.getenv("SECRET")
 
 app = Flask(__name__)
 slack_event_adapter = SlackEventAdapter(SIGNING_SECRET, '/slack/events', app)
@@ -42,21 +37,27 @@ def message(payload):
         elif (user_realname):
             client.chat_postMessage(channel=channel_id,text="Hello, " + user_realname + "! \nWelcome to this awesome channel! 😎")
 
-
 #set routes
 @app.route('/challenge', methods=["POST"])
 def challenge():
-    
     data = request.form
     text = data.get("text")
     user_id = data.get("user_id")
     channel_id = data.get("channel_id")
 
-    #random languages
+    #random languages generator
     languages = ["JavaScript", "TypeScript", "Python", "PostgreSQL", "Java", "Ruby", "C", "C++", "C#", "PostgreSQL", "NoSQL", "MySQL", "Go", "PHP", "Kotlin", "Swift", "R"]
-    randomLanguage = random.choice(languages);
+    randomLanguage = random.choice(languages)
 
-    #get username of message sender
+    #random winner generator helper
+    def randomWinner(user1, user2):
+        users = [user1, user2]
+        winner = random.choice(users)
+        return winner
+
+    winner = randomWinner
+
+    #get real name/display name of message sender
     senderRealName = ""
     senderDisplayName = ""
 
@@ -79,23 +80,29 @@ def challenge():
                 if (senderDisplayName != ""):
                     if (item["profile"]["display_name"] != ""):
                         client.chat_postMessage(channel=channel_id, text=f"{senderDisplayName} challenged {challengedUserDisplayName} to a {randomLanguage} battle!")
+                        client.chat_postMessage(channel=channel_id, text="And the winner is...")
+                        client.chat_postMessage(channel=channel_id, text=f"{winner(senderDisplayName, challengedUserDisplayName)}!!! 🎉🎉🎉")
                         foundUser = True
                     elif (item["profile"]["display_name"] == ""):
                         client.chat_postMessage(channel=channel_id, text=f"{senderDisplayName} challenged {challengedUserRealName} to a {randomLanguage} battle!!")
+                        client.chat_postMessage(channel=channel_id, text="And the winner is...")
+                        client.chat_postMessage(channel=channel_id, text=f"{winner(senderDisplayName, challengedUserRealName)}!!! 🎉🎉🎉")
                         foundUser = True
                 elif (senderDisplayName == ""):
                     if (item["profile"]["display_name"] != ""):
                         client.chat_postMessage(channel=channel_id, text=f"{senderRealName} challenged {challengedUserDisplayName} to a {randomLanguage} battle!!")
+                        client.chat_postMessage(channel=channel_id, text="And the winner is...")
+                        client.chat_postMessage(channel=channel_id, text=f"{winner(senderRealName, challengedUserDisplayName)}!!! 🎉🎉🎉")
                         foundUser = True
                     elif (item["profile"]["display_name"] == ""):
                         client.chat_postMessage(channel=channel_id, text=f"{senderRealName} challenged {challengedUserRealName} to a {randomLanguage} battle!!")
+                        client.chat_postMessage(channel=channel_id, text="And the winner is...")
+                        client.chat_postMessage(channel=channel_id, text=f"{winner(senderRealName, challengedUserDisplayName)}!!! 🎉🎉🎉")
                         foundUser = True
         if foundUser == False:
-            client.chat_postMessage(channel=channel_id, text="User not found! 😐 Please select an user in channel using '@'! 😎")
+            client.chat_postMessage(channel=channel_id, text="User not found! 😐 \nPlease select an user in channel using '@' (ex: @username)! 😎")
                    
-
-    print("🟢🟢🟢🟢", request)
     return Response(), 200
-  
+
 if __name__ == "__main__":
     app.run(debug=True)
