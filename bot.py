@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 import slack
 from flask import Flask, request, Response
 from slackeventsapi import SlackEventAdapter
@@ -33,9 +34,9 @@ def message(payload):
         user_displayname = response['profile']["display_name"]
 
         if (user_displayname != ""):
-            client.chat_postMessage(channel=channel_id,text="Hello, " + user_displayname + "! \nWelcome to this awesome channel! 😎")
+            client.chat_postMessage(channel=channel_id,text=f"Hello, *{user_displayname}*!\nWelcome to this _awesome_ channel! 😎")
         elif (user_realname):
-            client.chat_postMessage(channel=channel_id,text="Hello, " + user_realname + "! \nWelcome to this awesome channel! 😎")
+            client.chat_postMessage(channel=channel_id,text=f"Hello, *{user_realname}*!\nWelcome to this _awesome_ channel! 😎")
 
 #set routes
 @app.route('/challenge', methods=["POST"])
@@ -79,28 +80,28 @@ def challenge():
                 challengedUserRealName = item["profile"]["real_name"]
                 if (senderDisplayName != ""):
                     if (item["profile"]["display_name"] != ""):
-                        client.chat_postMessage(channel=channel_id, text=f"{senderDisplayName} challenged {challengedUserDisplayName} to a {randomLanguage} battle!")
+                        client.chat_postMessage(channel=channel_id, text=f"*{senderDisplayName}* challenged *{challengedUserDisplayName}* to a *{randomLanguage}* battle!")
                         client.chat_postMessage(channel=channel_id, text="And the winner is...")
-                        client.chat_postMessage(channel=channel_id, text=f"{winner(senderDisplayName, challengedUserDisplayName)}!!! 🎉🎉🎉")
+                        client.chat_scheduleMessage(channel=channel_id, text=f"*{winner(senderDisplayName, challengedUserDisplayName)}*!!! 🎉🎉🎉", post_at=int((datetime.now() + timedelta(seconds=11)).timestamp()))
                         foundUser = True
                     elif (item["profile"]["display_name"] == ""):
-                        client.chat_postMessage(channel=channel_id, text=f"{senderDisplayName} challenged {challengedUserRealName} to a {randomLanguage} battle!!")
+                        client.chat_postMessage(channel=channel_id, text=f"*{senderDisplayName}* challenged *{challengedUserRealName}* to a *{randomLanguage}* battle!!")
                         client.chat_postMessage(channel=channel_id, text="And the winner is...")
-                        client.chat_postMessage(channel=channel_id, text=f"{winner(senderDisplayName, challengedUserRealName)}!!! 🎉🎉🎉")
+                        client.chat_scheduleMessage(channel=channel_id, text=f"*{winner(senderDisplayName, challengedUserRealName)}*!!! 🎉🎉🎉", post_at=int((datetime.now() + timedelta(seconds=11)).timestamp()))
                         foundUser = True
                 elif (senderDisplayName == ""):
                     if (item["profile"]["display_name"] != ""):
-                        client.chat_postMessage(channel=channel_id, text=f"{senderRealName} challenged {challengedUserDisplayName} to a {randomLanguage} battle!!")
+                        client.chat_postMessage(channel=channel_id, text=f"*{senderRealName}* challenged *{challengedUserDisplayName}* to a *{randomLanguage}* battle!!")
                         client.chat_postMessage(channel=channel_id, text="And the winner is...")
-                        client.chat_postMessage(channel=channel_id, text=f"{winner(senderRealName, challengedUserDisplayName)}!!! 🎉🎉🎉")
+                        client.chat_scheduleMessage(channel=channel_id, text=f"*{winner(senderRealName, challengedUserDisplayName)}*!!! 🎉🎉🎉", post_at=int((datetime.now() + timedelta(seconds=11)).timestamp()))
                         foundUser = True
                     elif (item["profile"]["display_name"] == ""):
-                        client.chat_postMessage(channel=channel_id, text=f"{senderRealName} challenged {challengedUserRealName} to a {randomLanguage} battle!!")
+                        client.chat_postMessage(channel=channel_id, text=f"*{senderRealName}* challenged *{challengedUserRealName}* to a *{randomLanguage}* battle!!")
                         client.chat_postMessage(channel=channel_id, text="And the winner is...")
-                        client.chat_postMessage(channel=channel_id, text=f"{winner(senderRealName, challengedUserDisplayName)}!!! 🎉🎉🎉")
+                        client.chat_scheduleMessage(channel=channel_id, text=f"*{winner(senderRealName, challengedUserDisplayName)}*!!! 🎉🎉🎉", post_at=int((datetime.now() + timedelta(seconds=11)).timestamp()))
                         foundUser = True
         if foundUser == False:
-            client.chat_postMessage(channel=channel_id, text="User not found! 😐 \nPlease select an user in channel using '@' (ex: @username)! 😎")
+            client.chat_postMessage(channel=channel_id, text="User not found! 😐 \nPlease select an user in channel using '@' _(ex: @username)_! 🙂")
                    
     return Response(), 200
 
