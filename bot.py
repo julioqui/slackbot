@@ -1,15 +1,10 @@
-from datetime import datetime, timedelta
 import slack
 from flask import Flask, request, Response
 from slackeventsapi import SlackEventAdapter
 from dotenv import load_dotenv
 import os
 import random
-import asyncio
-from slack_sdk.web.async_client import AsyncWebClient
-from slack_sdk.errors import SlackApiError
 from threading import Timer
-
 
 load_dotenv()
 
